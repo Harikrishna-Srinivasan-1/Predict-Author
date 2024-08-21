@@ -1,12 +1,12 @@
 from PyPDF2 import *
 
 def extract_pdf_text(pdf,/,start=0,stop=None,step=1):
-	"""
+    """
     Extracts cleaned text from the specified pages of a PDF.
 
-    :param pdf_path: Path to the PDF file.
-    :param start_page: Starting page number (0-indexed).
-    :param end_page: Ending page number (exclusive). Defaults to None, meaning until the last page.
+    :param pdf: Path to the PDF file.
+    :param start: Starting page number (0-indexed).
+    :param stop: Ending page number (exclusive). Defaults to None, meaning until the last page.
     :param step: Step size between pages.
     :return: List of cleaned words extracted from the PDF.
     """
@@ -31,7 +31,7 @@ def extract_pdf_text(pdf,/,start=0,stop=None,step=1):
     return valid_words
 
 def words_frequencies(content):
-	"""
+    """
     Computes word frequencies based on the list of words.
 
     :param words: List of words.
@@ -52,13 +52,13 @@ def compare_pdfs(pdf1,pdf2,/,*,start1=0,stop1=None,step1=1,start2=0,stop2=None,s
 	"""
     Compares the similarity between two PDFs based on word frequencies.
 
-    :param pdf1_path: Path to the first PDF file.
-    :param pdf2_path: Path to the second PDF file.
+    :param pdf1: Path to the first PDF file.
+    :param pdf2: Path to the second PDF file.
     :param start1: Starting page number for the first PDF.
-    :param end1: Ending page number for the first PDF.
+    :param stop1: Ending page number for the first PDF.
     :param step1: Step size between pages for the first PDF.
     :param start2: Starting page number for the second PDF.
-    :param end2: Ending page number for the second PDF.
+    :param stop2: Ending page number for the second PDF.
     :param step2: Step size between pages for the second PDF.
     :return: Similarity score based on the overlap of word frequencies.
     """
