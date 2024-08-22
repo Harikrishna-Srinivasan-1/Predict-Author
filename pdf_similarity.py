@@ -50,21 +50,21 @@ def words_frequencies(content):
 
 def compare_pdfs(pdf1,pdf2,/,*,start1=0,stop1=None,step1=1,start2=0,stop2=None,step2=1):
 	"""
-    Compares the similarity between two PDFs based on word frequencies.
-
-    :param pdf1: Path to the first PDF file.
-    :param pdf2: Path to the second PDF file.
-    :param start1: Starting page number for the first PDF.
-    :param stop1: Ending page number for the first PDF.
-    :param step1: Step size between pages for the first PDF.
-    :param start2: Starting page number for the second PDF.
-    :param stop2: Ending page number for the second PDF.
-    :param step2: Step size between pages for the second PDF.
-    :return: Similarity score based on the overlap of word frequencies.
-    """
-    words_freq1 = words_frequencies(extract_pdf_text(pdf1,start1,stop1,step1))
-    words_freq2 = words_frequencies(extract_pdf_text(pdf2,start2,stop2,step2))
-    
-    similarity = sum(words_freq1.get(word,0) for word in words_freq2)
-
-    return similarity
+	Compares the similarity between two PDFs based on word frequencies.
+	
+	:param pdf1: Path to the first PDF file.
+	:param pdf2: Path to the second PDF file.
+	:param start1: Starting page number for the first PDF.
+	:param stop1: Ending page number for the first PDF.
+	:param step1: Step size between pages for the first PDF.
+	:param start2: Starting page number for the second PDF.
+	:param stop2: Ending page number for the second PDF.
+	:param step2: Step size between pages for the second PDF.
+	:return: Similarity score based on the overlap of word frequencies.
+	"""
+	words_freq1 = words_frequencies(extract_pdf_text(pdf1,start1,stop1,step1))
+	words_freq2 = words_frequencies(extract_pdf_text(pdf2,start2,stop2,step2))
+	
+	similarity = sum(words_freq1.get(word,0) for word in words_freq2)
+	
+	return similarity
