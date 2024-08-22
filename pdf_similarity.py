@@ -1,7 +1,8 @@
 from PyPDF2 import *
 import sys
 
-def pdf_download(url, path='./', file=''):
+
+def pdf_download(url:str, path:str='./', file:str='') -> str:
     """
     Downloads a PDF from the specified URL and saves it to the given path.
 
@@ -16,35 +17,33 @@ def pdf_download(url, path='./', file=''):
     if not (url.startswith("https://") or url.startswith("http://")):
         url = "https://" + url
     try:
-        response = requests.get(url)
+        response:requests.Response = requests.get(url)
     except requests.RequestException:
         print(f"Error downloading PDF: Invalid URL {url}")
         sys.exit(1)
 
-    # Ensure path is valid and exists
-    path = os.path.abspath(path.strip() or './')
-    if not os.path.exists(path):
-        try:
-            os.makedirs(path)
-        except OSError as e:
-            print(f"Invalid path: '{path}'")
-            sys.exit(1)
+    path = path.strip()
+    if not path:
+        path = "./"
+    try:
+        os.makedirs(path,exist_ok=True)
+    except FileNotFoundError:
+        print(f"Illegal Path: {path}")
+        sys.exit(1)
 
     # Set the default filename if not provided
     if not file:
-        file = os.path.basename(url).split('.')[0] + '.pdf'
+        file = os.path.basename(url).split(".")[0] + ".pdf"
     else:
-        file = file if file.lower().endswith('.pdf') else file + '.pdf'
+        file = file.split(".")[0] + ".pdf"
 
-    file_path = os.path.join(path, file)
-
-    with open(file_path, "wb") as pdf_file:
+    with open(file, "wb") as pdf_file:
         pdf_file.write(response.content)
 
-    return os.path.realpath(file_path)
+    return os.path.realpath(os.path.join(path,file))
 
   
-def extract_pdf_text(pdf,/,start=0,stop=None,step=1):
+def extract_pdf_text(pdf:str,/,start:int=0,stop:int|None=None,step:int=1) -> list[str]:
     """
     Extracts cleaned text from the specified pages of a PDF.
 
@@ -55,40 +54,40 @@ def extract_pdf_text(pdf,/,start=0,stop=None,step=1):
     :return: List of cleaned words extracted from the PDF.
     """
     try:
-        pdf_reader = PdfReader(pdf_path)
+        pdf_file = PdfReader(pdf)
     except FileNotFoundError:
-        print(f"File not found: {pdf_path}")
+        print(f"File not found: {pdf}")
         sys.exit(1)
     except Exception as exception:
         print(f"Error reading PDF: {exception}")
         sys.exit(1)
     
-    valid_words = []
-    pages = len(pdf_file.pages)
+    valid_words:list[str] = []
+    pages:int = len(pdf_file.pages)
     if stop is None or stop > pages:
         stop = pages
 
     for i in range(start,stop,step):
-            page_text = pdf_file.pages[i].extract_text().split()
-            word_list = [''.join([letter for letter in word.lower() if letter.isalpha()]) for word in page_text if len(word) > 1]
+            page_text:list[str] = pdf_file.pages[i].extract_text().split()
+            word_list:list[str] = [''.join([letter for letter in word.lower() if letter.isalpha()]) for word in page_text if len(word) > 1]
 
             valid_words.extend(word_list)
 
     return valid_words
 
-def words_frequencies(content):
+def words_frequencies(content:list[str]) -> dict[str,float]:
     """
     Computes word frequencies based on the list of words.
 
     :param words: List of words.
     :return: Dictionary with words as keys and their frequencies as values.
     """
-    words_freq = {}
-    total_content = len(content)
+    words_freq:dict[str,float] = {}
+    total_content:int = len(content)
     if total_content == 0:
-        return words_dreq
+        return words_freq
 
-    probability_increment = 1/total_content
+    probability_increment:float = 1/total_content
 
     # Convert counts to probabilities
     for word in content:
@@ -96,7 +95,10 @@ def words_frequencies(content):
 
     return words_freq
 
-def compare_pdfs(pdf1,pdf2,/,*,start1=0,stop1=None,step1=1,start2=0,stop2=None,step2=1):
+def compare_pdfs(
+        pdf1:str,pdf2:str,/,*,
+        start1:int=0,stop1:int|None=None,step1:int=1,
+        start2:int=0,stop2:int|None=None,step2:int=1) -> float:
 	"""
 	Compares the similarity between two PDFs based on word frequencies.
 	
@@ -110,9 +112,9 @@ def compare_pdfs(pdf1,pdf2,/,*,start1=0,stop1=None,step1=1,start2=0,stop2=None,s
 	:param step2: Step size between pages for the second PDF.
 	:return: Similarity score based on the overlap of word frequencies.
 	"""
-	words_freq1 = words_frequencies(extract_pdf_text(pdf1,start1,stop1,step1))
-	words_freq2 = words_frequencies(extract_pdf_text(pdf2,start2,stop2,step2))
+	words_freq1:dict[str,float] = words_frequencies(extract_pdf_text(pdf1,start1,stop1,step1))
+	words_freq2:dict[str,float] = words_frequencies(extract_pdf_text(pdf2,start2,stop2,step2))
 	
-	similarity = sum(words_freq1.get(word,0) for word in words_freq2)
+	similarity:float = sum(words_freq1.get(word,0) for word in words_freq2)
 	
 	return similarity
