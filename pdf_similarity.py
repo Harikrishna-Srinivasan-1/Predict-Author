@@ -37,7 +37,7 @@ def pdf_download(url:str, path:str='./', file:str='') -> str:
     else:
         file = file.split(".")[0] + ".pdf"
 
-    with open(file_path, 'wb') as pdf_file:
+    with open(file, 'wb') as pdf_file:
                 for chunk in response.iter_content(chunk_size=8192):  # 8 KB chunks
                     pdf_file.write(chunk)
 
