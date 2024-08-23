@@ -1,4 +1,4 @@
-from PyPDF2 import *
+import fitz
 import sys
 
 
@@ -37,15 +37,15 @@ def pdf_download(url:str, path:str='./', file:str='') -> str:
     else:
         file = file.split(".")[0] + ".pdf"
 
-    with open(file, "wb") as pdf_file:
-        pdf_file.write(response.content)
+    with open(file_path, 'wb') as pdf_file:
+                for chunk in response.iter_content(chunk_size=8192):  # 8 KB chunks
+                    pdf_file.write(chunk)
 
     return os.path.realpath(os.path.join(path,file))
 
-  
-def extract_pdf_text(pdf:str,/,start:int=0,stop:int|None=None,step:int=1) -> list[str]:
+def extract_pdf_text(pdf: str, start: int = 0, stop: int | None = None, step: int = 1) -> list[str]:
     """
-    Extracts cleaned text from the specified pages of a PDF.
+    Extracts cleaned text from the specified pages of a PDF using PyMuPDF.
 
     :param pdf: Path to the PDF file.
     :param start: Starting page number (0-indexed).
@@ -54,24 +54,22 @@ def extract_pdf_text(pdf:str,/,start:int=0,stop:int|None=None,step:int=1) -> lis
     :return: List of cleaned words extracted from the PDF.
     """
     try:
-        pdf_file = PdfReader(pdf)
-    except FileNotFoundError:
-        print(f"File not found: {pdf}")
-        sys.exit(1)
+        doc = fitz.open(pdf)
     except Exception as exception:
-        print(f"Error reading PDF: {exception}")
+        print(f"Error opening PDF: {exception}")
         sys.exit(1)
     
-    valid_words:list[str] = []
-    pages:int = len(pdf_file.pages)
+    valid_words: list[str] = []
+    pages: int = len(doc)
+    
     if stop is None or stop > pages:
         stop = pages
 
-    for i in range(start,stop,step):
-            page_text:list[str] = pdf_file.pages[i].extract_text().split()
-            word_list:list[str] = [''.join([letter for letter in word.lower() if letter.isalpha()]) for word in page_text if len(word) > 1]
-
-            valid_words.extend(word_list)
+    for i in range(start, stop, step):
+        page = doc.load_page(i)
+        page_text = page.get_text().split()
+        word_list = [''.join([letter for letter in word.lower() if letter.isalpha()]) for word in page_text if len(word) > 1]
+        valid_words.extend(word_list)
 
     return valid_words
 
